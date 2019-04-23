@@ -1,8 +1,9 @@
 Team: 
-Chris 
-Jacob 
-Jonathan 
 Tyler
+Aneesh
+Matthew
+
+NOTE: BELOW INSTRUCTIONS ARE FROM UNCHANGED FRAMEWORK
 
 Compilation Instructions:
 Make sure you have a Java Development Kit (JDK) installed
