@@ -352,8 +352,6 @@ class ServerThread extends Thread{
 		//DEAL CARDS
 		cardGame.dealCards();
 		
-		//TENTATIVELY
-		//HAVE THE SERVER SEND LIST OF STRINGS TO PLAYERS FOR THEIR HAND OF CARDS
 		
 		while(game.gui.state.equals("game")) {
 			//Get the player that goes next
@@ -393,7 +391,6 @@ class ServerThread extends Thread{
 			catch (IOException e) {
 				move = focusPlayer.getTeamName() + " was skipped by server";
 			}
-			//???A good place to put Card game logic????
 			//CHECK MOVE
 			boolean legal = cardGame.isLegalMove(focusPlayer, move);
 			if(!legal) {

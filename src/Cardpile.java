@@ -21,7 +21,7 @@ public class Cardpile {
 	
 	//Returns the specified number of cards from the pile. The first element of the returned list is the first card drawn.
 	//If the pile contains less cards than requested, all the cards in the pile will be returned
-	List<Card> takeCards(int amount){
+	LinkedList<Card> takeCards(int amount){
 		LinkedList<Card> taken = new LinkedList<Card>();
 		
 		if(amount > numOfCards) {//if there are not enough cards in the pile
@@ -68,6 +68,15 @@ public class Cardpile {
 			cards.addAll(half1);//adds remaining cards
 			cards.addAll(half2);//one of these halves will be empty
 		}
+	}
+	
+	//Method to check if the deck is empty. Used for checking if it needs to be reshuffled
+	boolean isEmpty() {
+		if(numOfCards == 0)
+		{
+			return true;
+		}
+		return false;
 	}
 	
 }

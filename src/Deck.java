@@ -60,9 +60,49 @@ public class Deck {
 		{
 			//Getting the value, then finishing the line with category
 			val = input.next();
+			//Checking if all combinations are requested
+			while(val.equals("c")) {
+				//Going to next line
+				val = input.nextLine();
+								
+				//Setting up ArrayLists for combining elements
+				ArrayList<String> vals = new ArrayList<String>();
+				ArrayList<String> cats = new ArrayList<String>();
+				
+				//running until a "cvals" ends the block of values
+				while(true) {
+					val = input.nextLine();
+					if(val.equals("cvals")) {break;}
+					//System.out.println(val);
+					vals.add(val);
+				}
+				//running until a "ccats" ends the block of categorys
+				while(true) {
+					category = input.nextLine();
+					if(category.equals("ccats")) {break;}
+					//System.out.println(category);
+					cats.add(category);
+				}
+				
+				//Got all the vals and cats, make cards of em
+				for(String value : vals) {
+					for(String categor : cats) {
+						numOfCards ++;
+						cards.add(new Card(value, categor));
+					}
+				}
+				
+				//Ending if there's nothing else in the file
+				if(!input.hasNextLine()) {
+					return;
+				}
+				//Getting next val so the order isn't messed up outside
+				val = input.next();
+				//If its another combination, will automaticall go back to the top
+			}
 			category = input.nextLine();
 			
-			//putting the card in cards[] in order of appearance
+			//putting the card in cards in order of appearance
 			cards.add(new Card(val, category));
 			//Incrementing the number of cards
 			numOfCards ++;

@@ -119,6 +119,35 @@ public class CardGame
 		return true;
 	}
 	
+	public void makeMove(Player focusPlayer, String move) {
+		//Makes the move. Either will be playing a card, or drawing a card
+		if(move.equals("draw")) {
+			//Drawing the top card off the draw deck
+			focusPlayer.addCards(piles[0].takeCards(1));
+			//check if the deck was emptied
+			if(piles[0].isEmpty()) {
+				//Reshuffle the deck, taking into account all rules
+				unoReshuffle(piles[0], piles[1]);
+			}
+			
+		}
+	}
+	
+	//Method to reshuffle the used cards into the draw pile, and
+	//put one card into the used. Follows all rules for that process
+	void unoReshuffle(Cardpile draw, Cardpile used) {
+		//shuffle used, and set draw to it
+		used.shuffle();
+		draw = used;
+		//set used to a new Cardpile
+		used = new Cardpile("Used");
+		//add top card to it
+		used.addCardsOnTop(draw.takeCards(1));
+		
+		//Check for which card was put into discard
+		
+	}
+	
 	/**
 	 * Checks to see if a player has met the winning conditions
 	 * @author Chris
@@ -126,7 +155,7 @@ public class CardGame
 	 */
 	public boolean checkWinCondition(Player focusPlayer, String move)
 	{
-		//TODO extend into a specific game type (set of rules)
+		//Player wins if their move reduces their cards to 0
 		if(focusPlayer.getNumOfCards() == 0)
 			return true;
 		return false;
