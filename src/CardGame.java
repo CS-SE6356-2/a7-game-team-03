@@ -145,7 +145,10 @@ public class CardGame
 		used.addCardsOnTop(draw.takeCards(1));
 		
 		//Check for which card was put into discard
-		
+		//Special consideration for wild draw four
+		if(used.checkTop().getCategory().equals("Wild") && used.checkTop().getValue().equals("4")) {
+			
+		}
 	}
 	
 	/**

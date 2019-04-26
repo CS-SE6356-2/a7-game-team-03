@@ -5,6 +5,9 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -37,6 +40,7 @@ public class ClientGUI extends Application{
 	TextField addressInput;
 	TextField nameInput;
 	TextField gameInput;
+	ListView<String> cards;
 	
 	@Override
 	public void start(Stage stage) throws Exception {
@@ -66,6 +70,7 @@ public class ClientGUI extends Application{
 		addressInput = new TextField();//part of join screen
 		nameInput = new TextField();//part of host and join screen
 		gameInput = new TextField();//part of game screen
+		cards = new ListView<String>(
 		
 		//setup buttons and what-not
 		hostButton.setOnAction(new EventHandler<ActionEvent>() {

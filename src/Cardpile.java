@@ -38,6 +38,10 @@ public class Cardpile {
 		
 		return taken;
 	}
+	//Method to merely check the top card without removing it
+	Card checkTop() {
+		return cards.get(0);
+	}
 	
 	void addCardsOnTop(List<Card> cards) {
 		this.cards.addAll(0, cards);//adds cards to the front of the list
