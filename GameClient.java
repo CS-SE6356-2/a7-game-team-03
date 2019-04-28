@@ -1,3 +1,22 @@
+/*	Programmer: Tyler Heald
+	Date: 4/27/2019
+	Description:
+		The GameClient class communicates between the GUI and
+		the server. GameClient objects contain information about
+		the player using them, and relay that information to the
+		GUI, and relay commands to the server, which responds with
+		information about the state of the CardGame.
+	Methods:
+		connectToHost - Takes a player name, and a host ip and
+			sets up a connection when the GUI calls for it
+		disconnectFromHost - disconnects from the host
+			when the GUI calls for it
+		sendStart - If the client is the game leader, sends a 
+			message to the host that the game needs to start
+		isLeader
+		get/setName
+*/
+
 import java.util.*;
 import java.io.*;
 import java.net.*;
@@ -13,84 +32,15 @@ public class GameClient {
 	
 	boolean leader = false;
 	
+	Hand cards = new Hand();
+	
 	//CONSTRUCTOR
 	GameClient() {
 		
 	}
 	
-	/*public static void main(String[] args) {
-		String hostName = args[0];
-		int port = Integer.parseInt(args[1]);
-		Socket hostSock = null;
-		
-		DataInputStream in = null;
-		DataOutputStream out = null;
-		
-		Scanner input = new Scanner(System.in);
-		
-		String myMessage = "";
-		String serverMessage = "";
-		
-		try {
-			//Connecting to the host
-			hostSock = new Socket(hostName, port);
-			out = new DataOutputStream(hostSock.getOutputStream());
-			in = new DataInputStream(hostSock.getInputStream());
-			
-			//Prompting user for name
-			System.out.println("Enter your name:");
-			//Sent to the server as a client label
-			out.writeUTF(input.nextLine());
-			//Read in the connection message from host
-			serverMessage = in.readUTF();
-			System.out.println(serverMessage);
-			//Resetting serverMessage
-			serverMessage = "";
-		}
-		catch(UnknownHostException e) {System.out.println("no host!");}
-		catch(IOException e) { }
-		
-		while(!serverMessage.equals("disconnect")) {
-			//Reading message from server
-			try{
-				serverMessage = in.readUTF();
-			}
-			catch(IOException e) {}
-			
-			//Disconnecting
-			if(serverMessage.equals("disconnect")) {
-				try{
-					hostSock.close();
-				} catch(IOException e) {}
-				System.out.println("Disconnected from server.");
-				System.exit(0);
-			}
-			
-			//Printing the message
-			if(!serverMessage.equals("") && !serverMessage.equals("respond")) {
-				System.out.println("Host said: " + serverMessage);
-			}
-			
-			//Server requesting input
-			if(serverMessage.equals("respond")) {
-				myMessage = input.nextLine();
-				try{
-					//myMessage = input.nextLine();
-					out.writeUTF(myMessage);
-				}
-				catch(IOException e) {}
-			}
-		}
-		
-		//Closing the socket
-		System.out.println("Disconnecting from server...");
-		try{
-			hostSock.close();
-		}
-		catch(IOException e) {}
-		System.out.println("Disconnected");
-	}*/
-	
+	//Connects to the host specified in the text field on the GUI
+	//when the connect button is pressed
 	boolean connectToHost(String name, String socket) {
 		String[] ipAndPort = socket.split(":");
 		try {
@@ -116,6 +66,7 @@ public class GameClient {
 		catch(IOException e) { return false;}
 	}
 	
+	//Disconnects from host when GUI calls for it (not currently used)
 	boolean disconnectFromHost() {
 		if(hostSock != null) {
 			try{
@@ -136,6 +87,7 @@ public class GameClient {
 		return true;
 	}
 	
+	//GETTERS/SETTERS
 	boolean isLeader() {
 		return leader;
 	}

@@ -1,3 +1,11 @@
+/*	Programmer: Tyler Heald
+	Date: 4/27/2019
+	Description:
+		The ClientGUI class contains all of the pieces needed to interact
+		with an underlying GameClient object. The user will input their
+		name, the host socket, and will select their cards they want to
+		play from the GUI, and it will communicate to the GameClient object
+*/
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -20,7 +28,9 @@ public class ClientGUI extends Application {
 	public void start(Stage primaryStage) {
 		primaryStage.setTitle("UNO!");
 		
+		//Setting up the GridPane to hold all the gui elements
 		GridPane grid = new GridPane();
+		//DEBUG
 		grid.setGridLinesVisible(true);
 		grid.setAlignment(Pos.CENTER);
 		grid.setHgap(10);
@@ -58,6 +68,7 @@ public class ClientGUI extends Application {
 				actiontarget.setText("Connecting to server...");
 				//Setting client name
 				client.setName(nameField.getText());
+				//Moving to the game screen if succesfully connected
 				if(client.connectToHost(nameField.getText(), userTextField.getText())) {
 					toGameScreen(primaryStage);
 				}
@@ -67,14 +78,17 @@ public class ClientGUI extends Application {
 			}
 		});
 		
+		//Setting the scene
 		Scene scene = new Scene(grid, 300, 275);
 		primaryStage.setScene(scene);
 		
 		primaryStage.show();
 	}
 	
+	//Method to set the scene to the screen for playing the game
 	void toGameScreen(Stage primaryStage) {
 		GridPane grid = new GridPane();
+		//DEBUG
 		grid.setGridLinesVisible(true);
 		grid.setAlignment(Pos.CENTER);
 		grid.setHgap(10);
@@ -100,11 +114,13 @@ public class ClientGUI extends Application {
 			startButton.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent e) {
+					//Telling the client to let the server know it needs to start
 					client.sendStart();
 				}
 			});
 		}
 		
+		//Adding the listView for all of the players cards
 		grid.add(cards, 0, 1);
 		
 		Scene scene = new Scene(grid, 500, 300);

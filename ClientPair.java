@@ -1,3 +1,13 @@
+/*	Programmer: Tyler Heald
+	Date: 4/28/2019
+	Description:
+		The ClientPair class is just a data storage class that
+		makes it easier to store a clients name together with the
+		socket they are connected on.
+	Methods:
+		get/setName
+		get/setSocket
+*/
 import java.net.*;
 
 //HELPER DATA CLASS FOR STORING CLIENT INFO

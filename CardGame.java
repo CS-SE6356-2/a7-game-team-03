@@ -101,17 +101,6 @@ public class CardGame
 			}
 		return false;
 	}
-	
-	private String checkForTrick(List<Card> trick)
-	{
-		//TODO
-		return "Royal Flush!";
-	}
-	private int getMatchValue(List<Card> match)
-	{
-		//TODO
-		return 21;
-	}
 
 	public boolean isLegalMove(Player focusPlayer, String move) {
 		//The players move has to match either color or value of the previously

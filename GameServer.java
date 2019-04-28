@@ -32,6 +32,7 @@ public class GameServer{
 			Socket clientSock = listenSock.accept();
 			Thread cliSet = new Thread(new clientSetup(clientSock, new DataInputStream(clientSock.getInputStream()),
 					new DataOutputStream(clientSock.getOutputStream()), clients));
+			//Thread to set-up the client by adding their details to clients arraylist
 			cliSet.start();
 			numOfClients++;
 			System.out.println("Leader client on: " + clientSock.getInetAddress().getLocalHost().getHostAddress() + ":" + clientSock.getLocalPort());
@@ -40,11 +41,13 @@ public class GameServer{
 			Boolean startGame = false;
 			Thread leadStart = new Thread(new leaderControl(cliSet, new DataInputStream(clientSock.getInputStream()),
 					new DataOutputStream(clientSock.getOutputStream())));
+			//Thread to listen for when the leader starts the game
 			leadStart.start();
 			
-			//Setting the ServerSocket to timeout after 6 seconds
-			listenSock.setSoTimeout(6000);
-			//Connecing other clients
+			//Setting the ServerSocket to timeout after 3 seconds
+			listenSock.setSoTimeout(3000);
+			//Connecing other clients while the leader hasn't started the game, or there
+			//are less than 10 players at least started connecting
 			while(leadStart.isAlive() && clients.size() < 10) {
 				//Listening for another client
 				//If the connection times out, tries again
@@ -70,7 +73,12 @@ public class GameServer{
 			//DEBUG
 			System.out.println("Game start!");
 			//Create the CardGame object with player info
+			CardGame cardGame = new CardGame(numOfClients, clients, new File("cardlist"));
+			//Deal the cards
+			cardGame.dealCards();
 			
+			//Get a PlayerQueue to run in order
+			PlayerQueue playOrder = cardGame.sortPlayersInPlayOrder();
 			
 			//DEBUG END
 			for(ClientPair client : clients) {
@@ -85,11 +93,10 @@ public class GameServer{
 	}
 }
 
+//Thread to set up the clients by adding their details to clients
 class clientSetup implements Runnable {
 	//FIELDS
 	Socket clientSock;
-	ArrayList<Socket> clientSocks;
-	ArrayList<String> clientLabels;
 	
 	ArrayList<ClientPair> clients;
 	
