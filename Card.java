@@ -52,4 +52,33 @@ public class Card{
 	{
 		return category;
 	}
+
+	/* This function assumes that the left hand side is the deck card, while
+	 * the right hand side comes from the player.
+	 */
+	public boolean matches(Card c) {
+		if (c == null) {
+			return false;
+		} else if (c.getVal().equals("Wild")) {
+			return true;
+		} else {
+			return this.value.equals(c.value)
+				|| this.category.equals(c.category);
+		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		} else if (o == null) {
+			return false;
+		} else if (!(o instanceof Card)) {
+			return false;
+		} else {
+			Card c = (Card) o;
+			return this.value.equals(c.value)
+				&& this.category.equals(c.category);
+		}
+	}
 }

@@ -103,12 +103,22 @@ public class CardGame
 	}
 
 	public boolean isLegalMove(Player focusPlayer, String move) {
-		//The players move has to match either color or value of the previously
-		//played card, or has to be a wild card.
+		String[] parts = move.split(" ");
 		Card prev = this.lastPlayed();
-		//if(
-		
-		return true;
+		switch (parts[0]) {
+		case "draw":
+			for (Card c : focusPlayer.getActiveCards()) {
+				if (c.matches(prev)) {
+					return false;
+				}
+			}
+			return true;
+		case "play":
+			Card play = new Card(parts[1], parts[2]);
+			return (prev.matches(play) && focusPlayer.getActiveCards().contains(play));
+		default:
+			return false;
+		}
 	}
 	
 	//Basically uses isLegalMove to find if there is any legal move
