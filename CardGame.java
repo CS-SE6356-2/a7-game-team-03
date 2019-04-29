@@ -121,11 +121,15 @@ public class CardGame
 		}
 	}
 	
-	//Basically uses isLegalMove to find if there is any legal move
-	//the player can do. Returns on finding one instance of such,
-	//or no such instances.
-	boolean hasLegalMove(Player focusPlayer, String move) {
-		return true;
+	// checks if the player in question has a card that can be played on
+	// this particular turn
+	boolean hasLegalPlay(Player focusPlayer) {
+		for (Card c : focusPlayer.getActiveCards()) {
+			if (this.lastPlayed().matches(c)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public void makeMove(Player focusPlayer, String move) {
