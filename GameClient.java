@@ -26,6 +26,8 @@ public class GameClient {
 	DataInputStream in = null;
 	DataOutputStream out = null;
 	
+	ClientGUI gui;
+	
 	String name = null;
 	
 	String serverMessage = "";
@@ -35,6 +37,10 @@ public class GameClient {
 	Hand cards = new Hand();
 	
 	//CONSTRUCTOR
+	GameClient(ClientGUI g) {
+		gui = g;
+	}
+	
 	GameClient() {
 		
 	}
@@ -87,6 +93,12 @@ public class GameClient {
 		return true;
 	}
 	
+	//A method to start the client listening constantly for messages from the server
+	void listen() {
+		Thread listen = new Thread(new ListenThread(out, in, gui));
+		listen.start();
+	}
+	
 	//GETTERS/SETTERS
 	boolean isLeader() {
 		return leader;
@@ -97,5 +109,33 @@ public class GameClient {
 	}
 	String getName() {
 		return name;
+	}
+}
+
+//Thread to listen to messages from the server
+class ListenThread implements Runnable {
+	DataOutputStream out;
+	DataInputStream in;
+	
+	ClientGUI gui;
+	
+	ListenThread(DataOutputStream 0, DataInputStream i, ClientGUI g) {
+		out = o;
+		in = i;
+		gui = g;
+	}
+	public void run() {
+		//Listen for messages from the server
+		String message = "";
+		try{
+			message = in.readUTF();
+		}
+		//Splitting the message into its parts
+		String[] messParts = message.split(" ");
+		
+		//Checking what the message isLeader
+		if(messParts[0].equals()) {
+			
+		}
 	}
 }

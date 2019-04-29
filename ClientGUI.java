@@ -116,8 +116,14 @@ public class ClientGUI extends Application {
 				public void handle(ActionEvent e) {
 					//Telling the client to let the server know it needs to start
 					client.sendStart();
+					//Telling the client to start listening to the server
+					client.listen();
 				}
 			});
+		}
+		else {
+			//Client is not the leader, just needs to listen to the server
+			client.listen();
 		}
 		
 		//Adding the listView for all of the players cards
@@ -126,4 +132,32 @@ public class ClientGUI extends Application {
 		Scene scene = new Scene(grid, 500, 300);
 		primaryStage.setScene(scene);
 	}
+	
+	//Methods for responding to client messages
+	/*
+	void addCard(ListView<String> cards, String card) {
+		
+	}
+	void removeCard(ListView<String> cards, String card) {
+		
+	}
+	void topOfDiscard(ItemToDisplayOn , String card) {
+		
+	}
+	void previousMove(ItemToDisplayOn , String player, String move) {
+		
+	}
+	void illegalMove() {
+		
+	}
+	void isTurn() {
+		
+	}
+	void winner(String player) {
+		
+	}
+	void numOfCards(String player, int num) {
+		
+	}
+	*/
 }
