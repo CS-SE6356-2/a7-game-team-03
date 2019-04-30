@@ -134,7 +134,9 @@ public class CardGame
 	
 	public void makeMove(Player focusPlayer, String move) {
 		//Makes the move. Either will be playing a card, or drawing a card
-		if(move.equals("draw")) {
+		String[] parts = move.split(" ");
+		switch (parts[0]) {
+		case "draw":
 			//Drawing the top card off the draw deck
 			focusPlayer.addCards(piles[0].takeCards(1));
 			//check if the deck was emptied
@@ -142,7 +144,10 @@ public class CardGame
 				//Reshuffle the deck, taking into account all rules
 				unoReshuffle(piles[0], piles[1]);
 			}
-			
+		case "play":
+			LinkedList<Card> to_del = new LinkedList();
+			to_del.push(new Card(parts[1], parts[2]));
+			piles[1].addCards(player.removeCards(to_del));
 		}
 	}
 	
