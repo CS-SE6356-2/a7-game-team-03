@@ -75,10 +75,135 @@ public class GameServer{
 			//Create the CardGame object with player info
 			CardGame cardGame = new CardGame(numOfClients, clients, new File("cardlist"));
 			//Deal the cards
+			//NOTE: the CardGame will itself notify the client of the cards they have
+				//PERHAPS NOT? KEEP SERVER AND LOGIC SEPARATE MAYBE
 			cardGame.dealCards();
 			
 			//Get a PlayerQueue to run in order
 			PlayerQueue playOrder = cardGame.sortPlayersInPlayOrder();
+			
+			//while(true) to just run until someone wins
+			while(true) {
+				//CHECK FOR ACTION CARD ON DISCARD
+				if(cardGame.lastPlayed().getVal().equals("skip")) {
+					//Notify all of skippage
+					for(ClientPair client : clients) {
+						DataOutputStream outToYou = client.getSock().getOutputStream();
+						outToYou.writeUTF("player " + playOrder.getPlayer().getName() + " skipped");
+					}
+					//Skip
+					playOrder.nextPlayer();
+					continue;
+				}
+				else if(cardGame.lastPlayed().getVal().equals("draw2")) {
+					//Draw 2 cards, then skip
+					for(int i = 0; i < 2; i++) {
+						String drawnCard = cardGame.drawCard(playOrder.getPlayer());
+						//Notify of card drawn
+						currentOut.writeUTF("draw " + drawnCard);
+					}
+					//Notify all of skippage
+					for(ClientPair client : clients) {
+						DataOutputStream outToYou = client.getSock().getOutputStream();
+						outToYou.writeUTF("player " + playOrder.getPlayer().getName() + "drew2 skipped");
+					}
+					//Skip
+					playOrder.nextPlayer();
+					continue;
+				}
+				else if(cardGame.lastPlayed().getVal().equals("draw4")) {
+					//Draw 4, then skip
+					for(int i = 0; i < 4; i++) {
+						String drawnCard = cardGame.drawCard(playOrder.getPlayer());
+						//Notify of card drawn
+						currentOut.writeUTF("draw " + drawnCard);
+					}
+					//Notify all of skippage
+					for(ClientPair client : clients) {
+						DataOutputStream outToYou = client.getSock().getOutputStream();
+						outToYou.writeUTF("player " + playOrder.getPlayer().getName() + "drew4 skipped");
+					}
+					//Skip
+					playOrder.nextPlayer();
+					continue;
+				}
+				//String to store the player's move
+				String move = "";
+				//Notify the player it is their turn
+				Socket currentPlayer = playOrder.getPlayer().getSock();
+				DataInputStream currentIn = currentPlayer.getInputStream();
+				DataOutputStream currentOut = currentPlayer.getOutputStream();
+				
+				currentOut.writeUTF("turn");
+				//Tell everyone who's turn it is
+				for(ClientPair client : clients) {
+					DataOutputStream outToYou = client.getSock().getOutputStream();
+					outToYou.writeUTF("turn " + playOrder.getPlayer().getName());
+				}
+				
+				//Check if the player has a legal move
+				if(cardGame.hasLegalPlay(playOrder.getPlayer())) {
+					//They do, they must play a card
+					currentOut.writeUTF("play");
+					//Receive the card played
+					move = currentIn.readUTF();
+					//check if its a legal move
+					while(!cardGame.isLegalMove(playOrder.getPlayer(), move)) {
+						//no, notify, and wait for legal move
+						currentOut.writeUTF("illegal move");
+						move = currentIn.readUTF();
+					}
+					//Yes, notify and play
+					currentOut.writeUTF("legal");
+					cardGame.makeMove(playOrder.getPlayer(), move);
+					
+				}
+				else {
+					//They don't have a legal move, must draw a card
+					String drawnCard = cardGame.drawCard(playOrder.getPlayer());
+					//Notify of card drawn
+					currentOut.writeUTF("draw " + drawnCard);
+					
+					//Set move to drew for notifying others
+					move = "drew";
+				}
+					
+				//Update the cardGame as to move taken(card played, card drawn)
+					//UPDATE FOR ACTION CARDS
+				//Tell other players what happened (who played what card, whats on the
+				//top of the discard, how many cards everyone has)
+				for(ClientPair client : clients) {
+					DataOutputStream outToYou = client.getSock().getOutputStream();
+					if(move.equals("drew")) {
+						outToYou.writeUTF("player " + playOrder.getPlayer().getName() + " drew");
+					}
+					else {
+						outToYou.writeUTF("player " + playOrder.getPlayer().getName() + " used " + move);
+					}
+				}
+				//Check if the player won
+					//yes, notify everyone, end game
+					//no, keep going
+				if(cardGame.won(playOrder.getPlayer())) {
+					//yes, notify everyone and end game
+					for(ClientPair client : clients) {
+						DataOutputStream outToYou = client.getSock().getOutputStream();
+						outToYou.writeUTF("player " + playOrder.getPlayer().getName() + " won");
+					}
+				}
+				//no, keep going
+				
+				//Tell everyone who has how many cards
+				for(
+				
+				//Reversing the order if needed
+				if(cardGame.lastPlayed().getVal().equals("reverse")) {
+					playOrder.reverseOrder();
+				}
+				
+				//Go to the next player, and repeat.
+				playOrder.nextPlayer();
+			}
 			
 			//DEBUG END
 			for(ClientPair client : clients) {

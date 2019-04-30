@@ -53,6 +53,14 @@ public class CardGame
 		//Put the first card on top of the draw deck on to the used pile
 		piles[1].addCardsOnTop(piles[0].takeCards(1));
 	}
+	//Method to draw a card for a given player
+	String drawCard(Player focusPlayer) {
+		//Draw the card
+		Card drawnCard = piles[0].takeCards(1);
+		//Add to player's hand
+		focusPlayer.addCard(drawnCard);
+		return drawnCard.toString();
+	}
 	public void shuffleCards() {cardDeck.shuffle();}
 	private void createPlayers(ArrayList<ClientPair> clients)
 	{
@@ -171,9 +179,9 @@ public class CardGame
 	 * @author Chris
 	 * @return
 	 */
-	public boolean checkWinCondition(Player focusPlayer, String move)
+	public boolean won(Player focusPlayer)
 	{
-		//Player wins if their move reduces their cards to 0
+		//Player wins if they have 0 cards
 		if(focusPlayer.getNumOfCards() == 0)
 			return true;
 		return false;

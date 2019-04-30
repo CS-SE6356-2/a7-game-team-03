@@ -35,6 +35,11 @@ public class Player
 	{
 		this.hand.addCards(cards);
 	}
+	
+	//Method to add just one card to the player's hand
+	void addCard(Card card) {
+		hand.addCard(card);
+	}
 
 	/* Removes all the cards in the list from the player's active cards
 	 * and returns a list of all cards successfully removed */

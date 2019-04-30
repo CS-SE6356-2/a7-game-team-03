@@ -109,8 +109,6 @@ public class PlayerQueue implements Iterable<Player>
 	public void reverseOrder() 
 	{
 		reversed = !reversed;
-		skipPlayer();
-		skipPlayer();
 	}
 	/**
 	 * Clears the queue

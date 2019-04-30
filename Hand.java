@@ -67,6 +67,11 @@ public class Hand
 		}
 		updateNumOfCards();
 	}
+	
+	//Method to add one card1
+	void addCard(Card card) {
+		activeCards.add(card);
+	}
 
 	/* Removes all the cards in the list from the active cards,
 	 * returning a list of all cards successfully removed */

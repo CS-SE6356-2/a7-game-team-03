@@ -35,6 +35,9 @@ public class Card{
 	{
 		System.out.println(value + " " + category);
 	}
+	String toString() {
+		return value + " " + category;
+	}
 	/****	GETTERS/SETTERS	****/
 	void setVal(String v)
 	{
