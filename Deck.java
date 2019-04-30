@@ -135,4 +135,10 @@ public class Deck {
 	{
 		return numOfCards;
 	}
+	
+	void printDeck() {
+		for(Card card: cards) {
+			card.printCard();
+		}
+	}
 }

@@ -95,7 +95,7 @@ public class GameClient {
 	
 	//A method to start the client listening constantly for messages from the server
 	void listen() {
-		Thread listen = new Thread(new ListenThread(out, in, gui));
+		Thread listen = new Thread(new ListenThread(out, in, gui, cards));
 		listen.start();
 	}
 	
@@ -119,23 +119,116 @@ class ListenThread implements Runnable {
 	
 	ClientGUI gui;
 	
-	ListenThread(DataOutputStream 0, DataInputStream i, ClientGUI g) {
+	Hand cards;
+	
+	Scanner input = new Scanner(System.in);
+	
+	ListenThread(DataOutputStream o, DataInputStream i, ClientGUI g, Hand c) {
 		out = o;
 		in = i;
 		gui = g;
+		cards = c;
 	}
 	public void run() {
+		//DEBUG
+		System.out.println("Hey! Listen!");
 		//Listen for messages from the server
 		String message = "";
-		try{
-			message = in.readUTF();
-		}
-		//Splitting the message into its parts
-		String[] messParts = message.split(" ");
-		
-		//Checking what the message isLeader
-		if(messParts[0].equals()) {
+		while(!message.equals("disconnect")) {
+			try{
+				message = in.readUTF();
+			}
+			catch(IOException e) {}
+			//DEBUG
+			System.out.println(message);
+			//Splitting the message into its parts
+			String[] messParts = message.split(" ");
 			
+			//Checking what the message header is
+			//Draw a card
+			if(messParts[0].equals("draw")) {
+				//Add the card to the hand
+				Card newCard = new Card(messParts[1], messParts[2]);
+				//DEBUG
+				System.out.println("added card");
+				cards.addCard(newCard);
+				//Send the new card to the gui
+			}
+			else if(messParts[0].equals("turn")) {
+				//Check if there its someone elses turn
+				if(messParts.length > 1) {
+					//is someone elses move
+				}
+				else {
+					//Will be receiving unneeded turn [name] message, get it off socket
+					try{
+						message = in.readUTF();
+					}
+					catch(IOException e) {}
+					//check for "play".
+						//yes, play card
+						//no, listen for cards drawn
+					try{
+						message = in.readUTF();
+						//DEBUG
+						System.out.println("read turn type:");
+						System.out.println(message);
+					}
+					catch(IOException e) {}
+					if(message.equals("play")) {
+						//this players move
+						//Tell the GUI to let a card be played.
+						//When one is, GUI will call a method to
+						//send the card to the server through client
+						//gui.getMove();
+						//DEBUG
+						System.out.println("printing cards:");
+						cards.printCards();
+						System.out.println("Enter the card you want to play:");
+						String cardPlay = input.nextLine();
+						//Send to server
+						try{
+							out.writeUTF(cardPlay);
+						}
+						catch(IOException e) {}
+						//Checking for illegal move
+						try{
+							message = in.readUTF();
+						}
+						catch(IOException e) {}
+						while(message.equals("illegal move")) {
+							//gui.getMove();
+							cards.printCards();
+							System.out.println("Enter the card you want to play:");
+							cardPlay = input.nextLine();
+							try {
+								out.writeUTF(cardPlay);
+								message = in.readUTF();
+							}
+							catch(IOException e) {}
+						}
+						//DEBUG
+						System.out.println("made legal move");
+						//Move was legal, server will send back what the card was
+						//client will remove from hand
+						String cardPlayed[] = cardPlay.split(" ");
+						LinkedList<Card> temp = new LinkedList<Card>();
+						temp.add(new Card(cardPlayed[0], cardPlayed[1]));
+						cards.removeCards(temp);
+						//DEBUG
+						System.out.println("Removed " + cardPlay);
+					}
+					else {
+						//Listen for card drawn
+						System.out.println("drawing a card");
+						String drawnCard = message;
+						//split the string to get the card
+						//will be in [1], [2]
+						String[] cardParts = drawnCard.split(" ");
+						cards.addCard(new Card(cardParts[1], cardParts[2]));
+					}
+				}
+			}
 		}
 	}
 }

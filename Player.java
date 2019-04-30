@@ -47,6 +47,11 @@ public class Player
 	{
 		return this.hand.removeCards(cards);
 	}
+	Card removeCard(Card card) {
+		LinkedList<Card> temp = new LinkedList<Card>();
+		temp.add(card);
+		return this.hand.removeCards(temp).get(0);
+	}
 	
 	/**
 	 * Returns the number of cards this player has
@@ -64,7 +69,7 @@ public class Player
 	}
 	public String getRole() {return role;}
 	public String getName() {return name;}
-	public Socket getSock() {return playerSock;}
+	public Socket getSocket() {return playerSock;}
 
 	/* Transfers all the cards in the list from the player's active cards
 	 * to their inactive cards and returns a list of all cards successfully
@@ -132,5 +137,9 @@ public class Player
 			cardList.append(' ');
 		
 		return cardList.toString();
+	}
+	void printHand() {
+		System.out.println("Player: " + name);
+		hand.printCards();
 	}
 }

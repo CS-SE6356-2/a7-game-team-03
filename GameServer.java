@@ -71,6 +71,8 @@ public class GameServer{
 				cliSet.join();
 			} catch(InterruptedException e) {}
 			//DEBUG
+			//Waiting for the leader to say start?
+			
 			System.out.println("Game start!");
 			//Create the CardGame object with player info
 			CardGame cardGame = new CardGame(numOfClients, clients, new File("cardlist"));
@@ -78,24 +80,41 @@ public class GameServer{
 			//NOTE: the CardGame will itself notify the client of the cards they have
 				//PERHAPS NOT? KEEP SERVER AND LOGIC SEPARATE MAYBE
 			cardGame.dealCards();
+			//DEBUG
+			cardGame.printHands();
+			System.out.print("\n");
+			cardGame.printDecks();
 			
 			//Get a PlayerQueue to run in order
 			PlayerQueue playOrder = cardGame.sortPlayersInPlayOrder();
 			
+			//Bool to check if a skip is still needed in the following game loop
+			boolean skipped = false;
+			
 			//while(true) to just run until someone wins
 			while(true) {
-				//CHECK FOR ACTION CARD ON DISCARD
-				if(cardGame.lastPlayed().getVal().equals("skip")) {
+				//DEEBUG
+				System.out.println(playOrder.getPlayer().getName());
+				//Setup to talk communicate with current player
+				Socket currentPlayer = playOrder.getPlayer().getSocket();
+				DataInputStream currentIn = new DataInputStream(currentPlayer.getInputStream());
+				DataOutputStream currentOut = new DataOutputStream(currentPlayer.getOutputStream());
+				
+				//ACTION CARDS TAKE EFFECT EVEN ON THE FIRST TURN,
+				//EXCEPT FOR WILD DRAW4, WHICH AUTOMATICALLY GETS RESHUFFLED
+				//IF IT STARTS A DISCARD PILE
+				if(cardGame.lastPlayed().getVal().equals("skip") && !skipped) {
 					//Notify all of skippage
 					for(ClientPair client : clients) {
-						DataOutputStream outToYou = client.getSock().getOutputStream();
+						DataOutputStream outToYou = new DataOutputStream(client.getSocket().getOutputStream());
 						outToYou.writeUTF("player " + playOrder.getPlayer().getName() + " skipped");
 					}
 					//Skip
 					playOrder.nextPlayer();
+					skipped = true;
 					continue;
 				}
-				else if(cardGame.lastPlayed().getVal().equals("draw2")) {
+				else if(cardGame.lastPlayed().getVal().equals("draw2") && !skipped) {
 					//Draw 2 cards, then skip
 					for(int i = 0; i < 2; i++) {
 						String drawnCard = cardGame.drawCard(playOrder.getPlayer());
@@ -104,40 +123,56 @@ public class GameServer{
 					}
 					//Notify all of skippage
 					for(ClientPair client : clients) {
-						DataOutputStream outToYou = client.getSock().getOutputStream();
+						DataOutputStream outToYou = new DataOutputStream(client.getSocket().getOutputStream());
 						outToYou.writeUTF("player " + playOrder.getPlayer().getName() + "drew2 skipped");
 					}
 					//Skip
 					playOrder.nextPlayer();
+					skipped = true;
 					continue;
 				}
-				else if(cardGame.lastPlayed().getVal().equals("draw4")) {
+				else if(cardGame.lastPlayed().getVal().equals("draw4") && !skipped) {
 					//Draw 4, then skip
 					for(int i = 0; i < 4; i++) {
 						String drawnCard = cardGame.drawCard(playOrder.getPlayer());
 						//Notify of card drawn
-						currentOut.writeUTF("draw " + drawnCard);
+						try {
+							currentOut.writeUTF("draw " + drawnCard);
+						}
+						catch(IOException e) {}
 					}
 					//Notify all of skippage
 					for(ClientPair client : clients) {
-						DataOutputStream outToYou = client.getSock().getOutputStream();
+						DataOutputStream outToYou = new DataOutputStream(client.getSocket().getOutputStream());
 						outToYou.writeUTF("player " + playOrder.getPlayer().getName() + "drew4 skipped");
 					}
 					//Skip
 					playOrder.nextPlayer();
+					skipped = true;
 					continue;
+				}
+				else if(cardGame.lastPlayed().getVal().equals("reverse")) {
+					//Reverse the order, and go to the right player
+					playOrder.reverseOrder();
+					playOrder.nextPlayer();
+					//Change the player communication stuff
+					currentPlayer = playOrder.getPlayer().getSocket();
+					currentIn = new DataInputStream(currentPlayer.getInputStream());
+					currentOut = new DataOutputStream(currentPlayer.getOutputStream());
+				}
+				//resetting skipped
+				if(skipped) {
+					skipped = false;
 				}
 				//String to store the player's move
 				String move = "";
 				//Notify the player it is their turn
-				Socket currentPlayer = playOrder.getPlayer().getSock();
-				DataInputStream currentIn = currentPlayer.getInputStream();
-				DataOutputStream currentOut = currentPlayer.getOutputStream();
-				
+				//DEBUG
+				System.out.println("Sending turn");
 				currentOut.writeUTF("turn");
 				//Tell everyone who's turn it is
 				for(ClientPair client : clients) {
-					DataOutputStream outToYou = client.getSock().getOutputStream();
+					DataOutputStream outToYou = new DataOutputStream(client.getSocket().getOutputStream());
 					outToYou.writeUTF("turn " + playOrder.getPlayer().getName());
 				}
 				
@@ -155,6 +190,8 @@ public class GameServer{
 					}
 					//Yes, notify and play
 					currentOut.writeUTF("legal");
+					//Have to add play to the card string
+					move = "play " + move;
 					cardGame.makeMove(playOrder.getPlayer(), move);
 					
 				}
@@ -173,7 +210,7 @@ public class GameServer{
 				//Tell other players what happened (who played what card, whats on the
 				//top of the discard, how many cards everyone has)
 				for(ClientPair client : clients) {
-					DataOutputStream outToYou = client.getSock().getOutputStream();
+					DataOutputStream outToYou = new DataOutputStream(client.getSocket().getOutputStream());
 					if(move.equals("drew")) {
 						outToYou.writeUTF("player " + playOrder.getPlayer().getName() + " drew");
 					}
@@ -181,20 +218,24 @@ public class GameServer{
 						outToYou.writeUTF("player " + playOrder.getPlayer().getName() + " used " + move);
 					}
 				}
+				//Check for uno being "called"
+				
 				//Check if the player won
 					//yes, notify everyone, end game
 					//no, keep going
 				if(cardGame.won(playOrder.getPlayer())) {
 					//yes, notify everyone and end game
 					for(ClientPair client : clients) {
-						DataOutputStream outToYou = client.getSock().getOutputStream();
+						DataOutputStream outToYou = new DataOutputStream(client.getSocket().getOutputStream());
 						outToYou.writeUTF("player " + playOrder.getPlayer().getName() + " won");
 					}
+					//exit while loop
+					break;
 				}
 				//no, keep going
 				
 				//Tell everyone who has how many cards
-				for(
+				//for(
 				
 				//Reversing the order if needed
 				if(cardGame.lastPlayed().getVal().equals("reverse")) {

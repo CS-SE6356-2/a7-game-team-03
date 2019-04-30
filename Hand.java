@@ -92,6 +92,7 @@ public class Hand
 		return removedCards;
 	}
 
+
 	/* Transfers all the cards in the list from active cards to inactive cards 
 	 * and returns a list of all cards successfully transferred */
 	public LinkedList<Card> transferActiveToInactive(LinkedList<Card> cards)
@@ -157,6 +158,11 @@ public class Hand
 		return numOfCards;
 	}
 
+	void printCards() {
+		for(Card card : activeCards) {
+			card.printCard();
+		}
+	}
 /* Private methods */
 	/* Used to recalculate numOfCards when cards are added or removed */
 	private void updateNumOfCards()

@@ -83,4 +83,10 @@ public class Cardpile {
 		return false;
 	}
 	
+	void printCards() {
+		for(Card card : cards) {
+			card.printCard();
+		}
+	}
+	
 }
