@@ -62,7 +62,9 @@ public class Card{
 	public boolean matches(Card c) {
 		if (c == null) {
 			return false;
-		} else if (c.getVal().equals("Wild")) {
+		} else if (c.getVal().equals("wild")) {
+			return true;
+		} else if(c.getVal().equals("draw4")) {
 			return true;
 		} else {
 			return this.value.equals(c.value)

@@ -187,6 +187,21 @@ class ListenThread implements Runnable {
 						System.out.println("Enter the card you want to play:");
 						String cardPlay = input.nextLine();
 						//Send to server
+						//Check for wilds
+						String[] cardCheck = cardPlay.split(" ");
+						if(cardCheck[1].equals("wild")) {
+							//Prompt for color
+							String color = "";
+							while(!color.equals("red") && !color.equals("blue") 
+								&& !color.equals("green") && !color.equals("yellow")) {
+									System.out.println("What color do you want?");
+									color = input.nextLine();
+								}
+							//DEBUG
+							System.out.println("color is: " + color);
+							//make the new card
+							cardPlay = cardCheck[0] + " " + color;
+						}
 						try{
 							out.writeUTF(cardPlay);
 						}
@@ -201,6 +216,21 @@ class ListenThread implements Runnable {
 							cards.printCards();
 							System.out.println("Enter the card you want to play:");
 							cardPlay = input.nextLine();
+							cardCheck = cardPlay.split(" ");
+							//Check for a wild card
+							if(cardCheck[1].equals("wild")) {
+								//Prompt for color
+								String color = "";
+								while(!color.equals("red") && !color.equals("blue") 
+									&& !color.equals("green") && !color.equals("yellow")) {
+										System.out.println("What color do you want?");
+										color = input.nextLine();
+									}
+								//DEBUG
+								System.out.println("color is: " + color);
+								//make the new card
+								cardPlay = cardCheck[0] + " " + color;
+							}
 							try {
 								out.writeUTF(cardPlay);
 								message = in.readUTF();
@@ -209,14 +239,23 @@ class ListenThread implements Runnable {
 						}
 						//DEBUG
 						System.out.println("made legal move");
-						//Move was legal, server will send back what the card was
+						//Move was legal, server will say it was legal
 						//client will remove from hand
 						String cardPlayed[] = cardPlay.split(" ");
 						LinkedList<Card> temp = new LinkedList<Card>();
-						temp.add(new Card(cardPlayed[0], cardPlayed[1]));
+						//Have to check for wild & draw4
+						if(cardPlayed[0].equals("draw4")) {
+							temp.add(new Card("draw4", "wild"));
+						}
+						else if(cardPlayed[0].equals("wild")) {
+							temp.add(new Card("wild", "wild"));
+						}
+						else {
+							temp.add(new Card(cardPlayed[0], cardPlayed[1]));
+						}
 						cards.removeCards(temp);
 						//DEBUG
-						System.out.println("Removed " + cardPlay);
+						System.out.println("Removed " + temp.get(0).getString());
 					}
 					else {
 						//Listen for card drawn
@@ -229,6 +268,6 @@ class ListenThread implements Runnable {
 					}
 				}
 			}
-		}
+		} 
 	}
 }

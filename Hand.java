@@ -26,6 +26,10 @@ public class Hand
 		this.activeCards = new LinkedList<Card>();
 		this.inactiveCards = new LinkedList<Card>();
 	}
+	
+	boolean hasCard(Card card) {
+		return activeCards.contains(card);
+	}
 
 	/* Looks at the activeCards for matches and returns all unique pairs
 	 * of matching cards. Games requiring a more sophisticated 

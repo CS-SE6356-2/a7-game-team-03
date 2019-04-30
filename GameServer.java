@@ -90,9 +90,20 @@ public class GameServer{
 			
 			//Bool to check if a skip is still needed in the following game loop
 			boolean skipped = false;
+			boolean firstTurn = true;
 			
 			//while(true) to just run until someone wins
 			while(true) {
+				//DEBUG
+				cardGame.printHands();
+				//DEBUG
+				System.out.println("LAST PLAYED: " + cardGame.lastPlayed().getString());
+				if(skipped) {
+					System.out.println("!skipped = false");
+				}
+				else {
+					System.out.println("!skipped = true");
+				}
 				//DEEBUG
 				System.out.println(playOrder.getPlayer().getName());
 				//Setup to talk communicate with current player
@@ -104,6 +115,9 @@ public class GameServer{
 				//EXCEPT FOR WILD DRAW4, WHICH AUTOMATICALLY GETS RESHUFFLED
 				//IF IT STARTS A DISCARD PILE
 				if(cardGame.lastPlayed().getVal().equals("skip") && !skipped) {
+					firstTurn = false;
+					//DEBUG
+					System.out.println("in skip");
 					//Notify all of skippage
 					for(ClientPair client : clients) {
 						DataOutputStream outToYou = new DataOutputStream(client.getSocket().getOutputStream());
@@ -115,6 +129,9 @@ public class GameServer{
 					continue;
 				}
 				else if(cardGame.lastPlayed().getVal().equals("draw2") && !skipped) {
+					firstTurn = false;
+					//DEBUG
+					System.out.println("in draw2");
 					//Draw 2 cards, then skip
 					for(int i = 0; i < 2; i++) {
 						String drawnCard = cardGame.drawCard(playOrder.getPlayer());
@@ -132,6 +149,9 @@ public class GameServer{
 					continue;
 				}
 				else if(cardGame.lastPlayed().getVal().equals("draw4") && !skipped) {
+					firstTurn = false;
+					//DEBUG
+					System.out.println("in draw4");
 					//Draw 4, then skip
 					for(int i = 0; i < 4; i++) {
 						String drawnCard = cardGame.drawCard(playOrder.getPlayer());
@@ -151,7 +171,11 @@ public class GameServer{
 					skipped = true;
 					continue;
 				}
-				else if(cardGame.lastPlayed().getVal().equals("reverse")) {
+				//Reversing the play order only if on the first round
+				else if(cardGame.lastPlayed().getVal().equals("reverse") && firstTurn) {
+					firstTurn = false;
+					//DEBUG
+					System.out.println("in reverse");
 					//Reverse the order, and go to the right player
 					playOrder.reverseOrder();
 					playOrder.nextPlayer();
@@ -160,6 +184,8 @@ public class GameServer{
 					currentIn = new DataInputStream(currentPlayer.getInputStream());
 					currentOut = new DataOutputStream(currentPlayer.getOutputStream());
 				}
+				//No longer need to know its the first turn
+				if(firstTurn) { firstTurn = false;}
 				//resetting skipped
 				if(skipped) {
 					skipped = false;
@@ -178,6 +204,8 @@ public class GameServer{
 				
 				//Check if the player has a legal move
 				if(cardGame.hasLegalPlay(playOrder.getPlayer())) {
+					//DEBUG
+					System.out.println(playOrder.getPlayer().getName() + " has a move");
 					//They do, they must play a card
 					currentOut.writeUTF("play");
 					//Receive the card played
@@ -196,6 +224,8 @@ public class GameServer{
 					
 				}
 				else {
+					//DEBUG
+					System.out.println(playOrder.getPlayer().getName() + " doesn't have a move");
 					//They don't have a legal move, must draw a card
 					String drawnCard = cardGame.drawCard(playOrder.getPlayer());
 					//Notify of card drawn

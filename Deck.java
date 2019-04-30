@@ -111,6 +111,8 @@ public class Deck {
 	/****	FUNCTIONS	****/
 	void shuffle()
 	{
+		//DEBUG
+		System.out.println("Shuffling");
 		//Making a Random object to run Fisher-Yates shuffle
 		Random rand = new Random();
 		
@@ -118,7 +120,7 @@ public class Deck {
 		for(int i = numOfCards-1; i > 0; i --)
 		{
 			//Getting a random index 0 <= j < i
-			int j = rand.nextInt(i+1);
+			int j = rand.nextInt(i);
 			Card temp = cards.get(i);
 			cards.set(i, cards.get(j));
 			cards.set(j, temp);

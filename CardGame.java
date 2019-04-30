@@ -19,6 +19,8 @@ public class CardGame
 	{
 		players = new Player[numOfPlayers];		//Create a list of Players
 		cardDeck = new Deck(cardList);			//Create the deck of cards. The Card Game class thus has a reference to all cards
+		//Shuffle the deck
+		cardDeck.shuffle();
 		piles = new Cardpile[2];				//Create the list of piles, will give amount that fits a specific card game
 		
 		//Create Card Piles
@@ -80,6 +82,10 @@ public class CardGame
 		Card drawnCard = piles[0].takeCards(1).get(0);
 		//Add to player's hand
 		focusPlayer.addCard(drawnCard);
+		//Shuffle the deck if needed
+		if(piles[0].isEmpty()) {
+			unoReshuffle(piles[0], piles[1]);
+		}
 		return drawnCard.getString();
 	}
 	public void shuffleCards() {cardDeck.shuffle();}
@@ -137,21 +143,7 @@ public class CardGame
 		String[] parts = move.split(" ");
 		Card prev = this.lastPlayed();
 		Card play = new Card(parts[0], parts[1]);
-		return prev.matches(play);
-		/*switch (parts[0]) {
-		case "draw":
-			for (Card c : focusPlayer.getActiveCards()) {
-				if (c.matches(prev)) {
-					return false;
-				}
-			}
-			return true;
-		case "play":
-			Card play = new Card(parts[1], parts[2]);
-			return (prev.matches(play) && focusPlayer.getActiveCards().contains(play));
-		default:
-			return false;
-		}*/
+		return (prev.matches(play) && focusPlayer.hasCard(play));
 	}
 	
 	// checks if the player in question has a card that can be played on
@@ -180,7 +172,21 @@ public class CardGame
 		case "play":
 			LinkedList<Card> to_del = new LinkedList();
 			to_del.push(new Card(parts[1], parts[2]));
-			piles[1].addCardsOnTop(focusPlayer.removeCards(to_del));
+			if(parts[1].equals("draw4")) {
+				LinkedList<Card> temp = new LinkedList<Card>();
+				temp.add(new Card("draw4", "wild"));
+				focusPlayer.removeCards(temp);
+				piles[1].addCardsOnTop(to_del);
+			}
+			else if(parts[1].equals("wild")) {
+				LinkedList<Card> temp = new LinkedList<Card>();
+				temp.add(new Card("wild", "wild"));
+				focusPlayer.removeCards(temp);
+				piles[1].addCardsOnTop(to_del);
+			}
+			else {
+				piles[1].addCardsOnTop(focusPlayer.removeCards(to_del));
+			}
 		}
 	}
 	

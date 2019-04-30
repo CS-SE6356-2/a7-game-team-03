@@ -95,6 +95,9 @@ public class Player
 		return result;
 		/* TODO */
 	}
+	boolean hasCard(Card card) {
+		return hand.hasCard(card);
+	}
 
 /* Getters */
 	public LinkedList<Card> getActiveCards()
