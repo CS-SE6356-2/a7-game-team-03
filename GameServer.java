@@ -420,12 +420,11 @@ class LeaderControl implements Runnable {
                 messFromLead = inFromLead.readUTF();
             } catch (IOException e) {
                 ++attempts;
-                e.printStackTrace();
                 System.err.printf("Unable to get message from server. Attempt number: %d.\n", attempts);
 
                 if (attempts == MAX_ATTEMPTS) {
                     System.err.println("Quitting");
-                    System.exit(0);
+                    return;
                 }
             }
         }

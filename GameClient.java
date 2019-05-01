@@ -44,6 +44,10 @@ public class GameClient {
     GameClient() {
     }
 
+    public Hand getCards() {
+        return cards;
+    }
+
     //Connects to the host specified in the text field on the GUI
     //when the connect button is pressed
     boolean connectToHost(String name, String socket) {
