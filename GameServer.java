@@ -13,6 +13,7 @@ public class GameServer {
     //Variable for numOfClients for thread purposes
     private static int numOfClients = 0;
     private static int MAX_PLAYERS = 10;
+    // this is a change
 
     private static CardGame uno = null;
 
