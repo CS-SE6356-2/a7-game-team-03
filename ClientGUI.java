@@ -7,15 +7,11 @@
 		play from the GUI, and it will communicate to the GameClient object
 */
 
-import com.sun.security.ntlm.Client;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.text.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -28,19 +24,11 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 import javafx.scene.canvas.*;
 
-import javax.imageio.ImageIO;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyListener;
-import java.awt.image.BufferedImage;
-import java.util.Stack;
-
 public class ClientGUI extends Application implements Runnable {
 
     private GameClient client;
     public final static int WIDTH = 1280; // window width
     public final static int HEIGHT = 720;  // window height
-
-    private Stage window; // main stage to display on the screen
 
     private volatile String selectedCard = null;
     private volatile String otherInput = null;
