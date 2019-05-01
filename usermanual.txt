@@ -1,0 +1,30 @@
+WELCOME TO UNO | RULES
+	At the start of a game, each player is dealt 7 cards, and the top
+	card on the draw pile is placed on the discard pile. If that card
+	is an Action Card, that Action is applied to the first player's turn,
+	unless that Action Card is a Wild Draw 4 Card. In that case, the card
+	is put back into the deck, and it is reshuffled, and a new card is put
+	on the discard. This is how the deck works any time it needs to be 
+	reshuffled.
+	
+	When it is a player's turn, they must play a card if they have a "match".
+	This means that either the value or color of their card matches that of
+	the card on top of the discard. This includes Action Cards as well. If
+	the top of the discard is a Red Reverse Card, then a Blue Reverse Card
+	can be played on top of it.
+	If a player has no matches, then they must draw a card.
+	
+	Once a player has managed to play all of their cards, they win.
+
+STARTING THE GAME
+	In order to play, a server has to be running. The server will report
+	on the command line what the socket it's listening on is. Then client
+	programs need to be run, and a name and host socket have to be entered.
+	Once that has been done, the player can connect to the host.
+	
+	The first player that connects is the "leader", and is the one that
+	decides when the game starts.
+	
+PLAYING THE GAME
+	Once all the players have connected and the leader has started the game,
+	each player will get their cards, 
