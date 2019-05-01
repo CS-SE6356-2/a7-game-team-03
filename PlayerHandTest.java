@@ -9,10 +9,10 @@ public class PlayerHandTest {
 		for(int i = 0; i < players.length; i++)
 		{
 			players[i] = new Player("Player "+i,"Test",null);
-			System.out.println("Added "+players[i].getTeamName());
+			System.out.println("Added "+players[i].getName());
 		}
 		
-		Deck deck = new Deck(new File("cardlist.txt"));
+		Deck deck = new Deck(new File("cardlist"));
 		
 		LinkedList<Card> temp = new LinkedList<Card>();
 		
@@ -32,7 +32,7 @@ public class PlayerHandTest {
 			}
 			temp.clear();									//Clear the list so we can give the next player their cards
 			
-			System.out.println(players[i].getTeamName()+"'s cards are: "+players[i].getCardListForUTF());
+			System.out.println(players[i].getName()+"'s cards are: "+players[i].getCardListForUTF());
 		}
 		
 	}

@@ -55,7 +55,7 @@ public class DeckTest {
 			if(choiceInt == 1)
 			{
 				//Make the deck and check it
-				Deck deck = new Deck(new File("cardList"));
+				Deck deck = new Deck(new File("cardlist"));
 				
 				//Printing header
 				System.out.println("Cards in the deck:");
@@ -65,7 +65,7 @@ public class DeckTest {
 			else if(choiceInt == 2)
 			{
 				//Creating a buffered writer for writing to the file
-				BufferedWriter writer = new BufferedWriter(new FileWriter("cardList"));
+				BufferedWriter writer = new BufferedWriter(new FileWriter("cardlist"));
 				
 				//Looping to add new cards to the list
 				System.out.println("Enter a card in the form \"value category\", or 'q' to finish");
@@ -100,7 +100,7 @@ public class DeckTest {
 				writer.close();
 				
 				//Testing the deck
-				Deck deck = new Deck(new File("cardList"));
+				Deck deck = new Deck(new File("cardlist"));
 				testDeck(deck);
 			}
 			else if(choiceInt == 3)

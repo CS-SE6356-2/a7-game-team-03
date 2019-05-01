@@ -6,15 +6,13 @@ public class CardGameTest {
 
 	public static void main(String[] args) 
 	{
-		ArrayList<String> playerNames = new ArrayList<String>();
-		ArrayList<Socket> socks = new ArrayList<Socket>();
+		ArrayList<ClientPair> players = new ArrayList<ClientPair>();
 		for(int i = 0; i < 3; i++)
 		{
-			playerNames.add("Player "+i);
-			socks.add(new Socket());
-			System.out.println("Added "+playerNames.get(i));
+			players.add(new ClientPair("Player " + i, new Socket()));
+			System.out.println("Added "+players.get(i).getName());
 		}
-		CardGame game = new CardGame(playerNames.size(),playerNames,socks,new File("cardlist.txt"));
+		CardGame game = new CardGame(players.size(),players,new File("cardlist"));
 		//createPlayers is tested within the constructor
 		
 		//Assign player 2 as dealer
@@ -22,11 +20,13 @@ public class CardGameTest {
 		//Shuffle the cards
 		game.shuffleCards();
 		//Deal the cards
+		//Runs into an exception because the players dont have actual sockets to send
+		//data to
 		game.dealCards();
 		
 		//Get the list of cards from each player and see they have been sorted as the dealer goes last
 		for(Player p: game.sortPlayersInPlayOrder())
-			System.out.println(p.getTeamName()+" has these cards: "+p.getCardListForUTF());
+			System.out.println(p.getName()+" has these cards: "+p.getCardListForUTF());
 		
 	}
 
