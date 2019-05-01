@@ -172,12 +172,12 @@ public class GameServer {
                 }
                 //Yes, notify and play
                 currentOut.writeUTF("legal");
-				//Checking if move requires a skip
-				String[] moveCheck = move.split(" ");
-				if(moveCheck[0].equals("draw4") || moveCheck[0].equals("draw2")
-					|| moveCheck[0].equals("skip")) {
-						needToSkip = true;
-					}
+                //Checking if move requires a skip
+                String[] moveCheck = move.split(" ");
+                if (moveCheck[0].equals("draw4") || moveCheck[0].equals("draw2")
+                        || moveCheck[0].equals("skip")) {
+                    needToSkip = true;
+                }
                 //Have to add play to the card string
                 move = "play " + move;
                 cardGame.makeMove(playOrder.getPlayer(), move);
@@ -290,7 +290,9 @@ public class GameServer {
             //Setting the ServerSocket to timeout after 3 seconds
             listenSock.setSoTimeout(3000);
 
-            cliSet = initAllClients(leadStart);
+            Thread total = initAllClients(leadStart);
+
+            if (total != null) cliSet = total;
 
             //Wait for last client to connect
             try {

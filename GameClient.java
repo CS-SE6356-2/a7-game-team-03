@@ -142,15 +142,25 @@ class ListenThread implements Runnable {
         gui = g;
         cards = c;
 
+        initInput();
+    }
+
+    public void initInput() {
         input = new Scanner(System.in);
     }
+
+
+    public void pipeText(String output) {
+        System.out.println(output);
+    }
+
 
     private String wildCardLoop() {
         //Prompt for color
         String color = "";
         while (!color.equals("red") && !color.equals("blue")
                 && !color.equals("green") && !color.equals("yellow")) {
-            System.out.println("What color do you want?");
+            pipeText("What color do you want?");
             color = input.nextLine();
         }
         //DEBUG

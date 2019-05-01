@@ -7,11 +7,15 @@
 		play from the GUI, and it will communicate to the GameClient object
 */
 
+import com.sun.security.ntlm.Client;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.text.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -24,13 +28,17 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 import javafx.scene.canvas.*;
 
+import javax.imageio.ImageIO;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.util.Stack;
 
 public class ClientGUI extends Application implements Runnable {
 
     private GameClient client;
-    public final static int WIDTH = 900; // window width
-    public final static int HEIGHT = 600;  // window height
+    public final static int WIDTH = 1280; // window width
+    public final static int HEIGHT = 720;  // window height
 
     private Stage window; // main stage to display on the screen
 
@@ -38,6 +46,13 @@ public class ClientGUI extends Application implements Runnable {
     private boolean running = false; // whether or not the application is still active
 
     private Canvas canvas; // draw canvas for the window
+    private Image img;
+
+    private boolean cardsChanged = true;
+
+    //Creating an ObservableList<> for ListView, and the Listview for cards
+    private ObservableList<String> cardList = FXCollections.observableArrayList();
+    private ListView<String> cards = new ListView<>(cardList);
 
     /**
      * Defines the stop method for the JavaFX Application.
@@ -50,15 +65,32 @@ public class ClientGUI extends Application implements Runnable {
         System.out.println("Client GUI is stopping.");
         running = false;
         try {
-            if (thread != null)
-                thread.join();
+            thread.join();
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Unable to join display thread with Main thread.");
         }
         client.disconnectFromHost();
         super.stop();
+
+        System.out.println("System exiting.");
+
+        System.exit(0);
     }
+
+    private void handleLogin(Stage primaryStage, TextField nameField, TextField userTextField, Text actionTarget) {
+        actionTarget.setFill(Color.FIREBRICK);
+        actionTarget.setText("Connecting to server...");
+        //Setting client name
+        client.setName(nameField.getText());
+        //Moving to the game screen if succesfully connected
+        if (client.connectToHost(nameField.getText(), userTextField.getText())) {
+            toGameScreen(primaryStage);
+        } else {
+            actionTarget.setText("Failed to connect!");
+        }
+    }
+
 
     public void start(Stage primaryStage) {
         client = new GameClient();
@@ -83,6 +115,7 @@ public class ClientGUI extends Application implements Runnable {
         grid.add(hostAddress, 0, 2);
 
         TextField userTextField = new TextField();
+
         grid.add(userTextField, 1, 2);
 
         Text actionTarget = new Text();
@@ -93,18 +126,20 @@ public class ClientGUI extends Application implements Runnable {
         hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hbBtn.getChildren().add(btn);
         grid.add(hbBtn, 1, 4);
+
+        cards.setOnMouseClicked((e) -> {
+            System.out.println(cards.getSelectionModel().getSelectedItem());
+        });
+
+        userTextField.setOnKeyPressed((e) -> {
+            if (e.getCode() == KeyCode.ENTER) {
+                handleLogin(primaryStage, nameField, userTextField, actionTarget);
+            }
+        });
+
         //Adding action to the button
         btn.setOnAction((e) -> {
-            actionTarget.setFill(Color.FIREBRICK);
-            actionTarget.setText("Connecting to server...");
-            //Setting client name
-            client.setName(nameField.getText());
-            //Moving to the game screen if succesfully connected
-            if (client.connectToHost(nameField.getText(), userTextField.getText())) {
-                toGameScreen(primaryStage);
-            } else {
-                actionTarget.setText("Failed to connect!");
-            }
+            handleLogin(primaryStage, nameField, userTextField, actionTarget);
         });
 
         //Setting the scene
@@ -133,10 +168,24 @@ public class ClientGUI extends Application implements Runnable {
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, WIDTH, HEIGHT);
 
+        gc.drawImage(img, 0, 0, WIDTH, HEIGHT);
+
     }
 
     public void tick() {
-        System.out.println("Ticking nothing rn.");
+        if (cardList.isEmpty()) {
+            for (Card card : client.getCards().getActiveCards()) {
+                cardList.add(card.getString());
+            }
+        } else if (cardsChanged) {
+            cardList.clear();
+
+            for (Card card : client.getCards().getActiveCards()) {
+                cardList.add(card.getString());
+            }
+
+            cardsChanged = false;
+        }
     }
 
 
@@ -146,9 +195,9 @@ public class ClientGUI extends Application implements Runnable {
          *  every time the thread updates the UI.
          */
         final Runnable updater = () -> {
-            render(); // Renders the Renderables at their new position
-            tick(); // Updates all Renderables with whatever tick method
-        };
+            render();
+            tick();
+        }; // Renders the Renderables at their new position
 
         /*
          * Attempts to get the thread to update tickRate times a second.
@@ -186,19 +235,14 @@ public class ClientGUI extends Application implements Runnable {
     }
 
     private void initScene(GridPane grid) {
-        Label playerLabel = new Label();
-
         final String labelText = String.format("%s - %s", client.isLeader() ? "Leader" : "Player", client.getName());
-        playerLabel.setText(labelText);
 
+        Label playerLabel = new Label(labelText);
         playerLabel.setTextFill(Color.WHITE);
-
-
         grid.add(playerLabel, 0, 0);
 
-        //Creating an ObservableList<> for ListView, and the Listview for cards
-        ObservableList<String> cardList = FXCollections.observableArrayList();
-        ListView<String> cards = new ListView<>(cardList);
+        TextField test = new TextField("Default text");
+        grid.add(test, 1, 1);
 
         //Creating a button just for the leader that tells the server to start the game
         if (client.isLeader()) {
@@ -224,6 +268,7 @@ public class ClientGUI extends Application implements Runnable {
     //Method to set the scene to the screen for playing the game
     private void toGameScreen(Stage primaryStage) {
         GridPane grid = new GridPane();
+        primaryStage.setTitle("Uno!??");
 
         canvas = new Canvas(WIDTH, HEIGHT);
 
@@ -233,6 +278,12 @@ public class ClientGUI extends Application implements Runnable {
 
         initGrid(grid);
         initScene(grid);
+
+        try {
+            img = new Image(String.format("file:%s", "res/bkg.jpg"));
+        } catch (Exception e) {
+            System.err.println("Unable to load image.");
+        }
 
         thread = new Thread(this);
         thread.setDaemon(false);
