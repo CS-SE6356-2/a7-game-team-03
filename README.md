@@ -21,17 +21,29 @@ be a single value. When the string "cvals" is read, the program starts reading i
 block, and the program will create cards in every combination of value and category.
 There can be multiple combinatorial blocks in the file, and they can be followed by single card pairs as well.
 
-NOTE: BELOW INSTRUCTIONS ARE FROM UNCHANGED FRAMEWORK
-
 Compilation Instructions:
-Make sure you have a Java Development Kit (JDK) installed
-Find the JDK (should be in c:\Program Files\Java
-Enther this line in command line set path=%path%;C:\Program Files\Java\jdk-9.0.1\bin
-Change Directory to the location of this project, into the src folder
-
-To compile and run the project: 
-javac ClientLauncher.java ClientController.java ClientGUI.java Card.java CardGame.java Cardpile.java Deck.java Hand.java Player.java PlayerQueue.java
-java ClientLauncher
+There are two possible situations for compiling the project:
+JDK with JavaFX included:
+	Very simple. Just javac *.java in the main directory.
+	
+JDK without JavaFX included:
+	More difficult. A JavaFX release must be downloaded to a directory
+	of your choice. Then, compile the code with 
+	javac --module-path /path/to/javafx/lib --add-modules javafx.base, javafx.controls, javafx.graphics *.java
+	
+Running the project:
+JDK with JavaFX included:
+	Start the server:
+		java GameServer
+	Start the client:
+		java ClientGUI
+		
+JDK without JavaFX included:
+	Start the server:
+		java GameServer
+	Start the client:
+		java --module-path /path/to/javafx/lib --add-modules javafx.base, javafx.controls, javafx.graphics ClientGUI
+		
  
 To compile and run CardpileTest 
 javac CardpileTest.java Cardpile.java Card.java 
