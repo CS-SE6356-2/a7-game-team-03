@@ -28,6 +28,13 @@ public class Hand
 	}
 	
 	boolean hasCard(Card card) {
+		//Checking for wild and draw4
+		if(card.getVal().equals("wild")) {
+			return activeCards.contains(new Card("wild", "wild"));
+		}
+		else if(card.getVal().equals("draw4")) {
+			return activeCards.contains(new Card("draw4", "wild"));
+		}
 		return activeCards.contains(card);
 	}
 

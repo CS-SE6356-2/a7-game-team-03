@@ -51,7 +51,7 @@ public class GameServer {
     private static void beginGame(CardGame cardGame, PlayerQueue playOrder) throws IOException {
 
         //Bool to check if a skip is still needed in the following game loop
-        boolean skipped = false;
+        boolean needToSkip = false;
         boolean firstTurn = true;
 
         //while(true) to just run until someone wins
@@ -60,7 +60,7 @@ public class GameServer {
             cardGame.printHands();
             //DEBUG
             System.out.println("LAST PLAYED: " + cardGame.lastPlayed().getString());
-            System.out.printf("!skipped = %s\n", skipped ? "false" : "true");
+            System.out.printf("needToSkip = %s\n", needToSkip ? "true" : "false");
 
             //DEEBUG
             System.out.println(playOrder.getPlayer().getName());
@@ -72,7 +72,7 @@ public class GameServer {
             //ACTION CARDS TAKE EFFECT EVEN ON THE FIRST TURN,
             //EXCEPT FOR WILD DRAW4, WHICH AUTOMATICALLY GETS RESHUFFLED
             //IF IT STARTS A DISCARD PILE
-            if (cardGame.lastPlayed().getVal().equals("skip") && !skipped) {
+            if (cardGame.lastPlayed().getVal().equals("skip") && needToSkip) {
                 firstTurn = false;
                 //DEBUG
                 System.out.println("in skip");
@@ -83,9 +83,9 @@ public class GameServer {
                 }
                 //Skip
                 playOrder.nextPlayer();
-                skipped = true;
+                needToSkip = false;
                 continue;
-            } else if (cardGame.lastPlayed().getVal().equals("draw2") && !skipped) {
+            } else if (cardGame.lastPlayed().getVal().equals("draw2") && needToSkip) {
                 firstTurn = false;
                 //DEBUG
                 System.out.println("in draw2");
@@ -98,13 +98,13 @@ public class GameServer {
                 //Notify all of skippage
                 for (ClientPair client : clients) {
                     DataOutputStream outToYou = new DataOutputStream(client.getSocket().getOutputStream());
-                    outToYou.writeUTF("player " + playOrder.getPlayer().getName() + "drew2 skipped");
+                    outToYou.writeUTF("player " + playOrder.getPlayer().getName() + " drew2 skipped");
                 }
                 //Skip
                 playOrder.nextPlayer();
-                skipped = true;
+                needToSkip = false;
                 continue;
-            } else if (cardGame.lastPlayed().getVal().equals("draw4") && !skipped) {
+            } else if (cardGame.lastPlayed().getVal().equals("draw4") && needToSkip) {
                 firstTurn = false;
                 //DEBUG
                 System.out.println("in draw4");
@@ -120,11 +120,11 @@ public class GameServer {
                 //Notify all of skippage
                 for (ClientPair client : clients) {
                     DataOutputStream outToYou = new DataOutputStream(client.getSocket().getOutputStream());
-                    outToYou.writeUTF("player " + playOrder.getPlayer().getName() + "drew4 skipped");
+                    outToYou.writeUTF("player " + playOrder.getPlayer().getName() + " drew4 skipped");
                 }
                 //Skip
                 playOrder.nextPlayer();
-                skipped = true;
+                needToSkip = false;
                 continue;
             }
             //Reversing the play order only if on the first round
@@ -143,10 +143,6 @@ public class GameServer {
             //No longer need to know its the first turn
             if (firstTurn) {
                 firstTurn = false;
-            }
-            //resetting skipped
-            if (skipped) {
-                skipped = false;
             }
             //String to store the player's move
             String move = "";
@@ -176,6 +172,12 @@ public class GameServer {
                 }
                 //Yes, notify and play
                 currentOut.writeUTF("legal");
+				//Checking if move requires a skip
+				String[] moveCheck = move.split(" ");
+				if(moveCheck[0].equals("draw4") || moveCheck[0].equals("draw2")
+					|| moveCheck[0].equals("skip")) {
+						needToSkip = true;
+					}
                 //Have to add play to the card string
                 move = "play " + move;
                 cardGame.makeMove(playOrder.getPlayer(), move);

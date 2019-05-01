@@ -203,7 +203,7 @@ public class CardGame
 		
 		//Check for which card was put into discard
 		//Special consideration for wild draw four
-		while(used.checkTop().getCategory().equals("Wild") && used.checkTop().getVal().equals("4")) {
+		while(used.checkTop().getVal().equals("draw4")) {
 			draw.addCardsOnTop(used.takeCards(1));
 			draw.shuffle();
 			used.addCardsOnTop(draw.takeCards(1));
