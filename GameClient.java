@@ -17,6 +17,8 @@
 		get/setName
 */
 
+import javafx.application.Platform;
+
 import java.util.*;
 import java.io.*;
 import java.net.*;
@@ -63,7 +65,7 @@ public class GameClient {
             //Read in the messages until player or leader specification
             while (!serverMessage.equals("leader") && !serverMessage.equals("player")) {
                 serverMessage = in.readUTF();
-                System.out.println(serverMessage);
+                //     System.out.println(serverMessage);
             }
             //Checking specification
             if (serverMessage.equals("leader")) {
@@ -107,7 +109,29 @@ public class GameClient {
 
     //A method to start the client listening constantly for messages from the server
     void listen() {
-        serverListen = new Thread(new ListenThread(out, in, gui, cards));
+        serverListen = new Thread(new ListenThread(out, in, gui, cards, () -> {
+            String selected = null;
+            System.out.println("GUI " + gui);
+
+
+            while (gui == null || (selected = gui.getSelectedCard()) == null) {
+            }
+            gui.voidSelectedCard();
+
+            return selected;
+        }, (String output) -> {
+            System.out.println("Setting label");
+            gui.setPrompt(output);
+        }, () -> {
+            String data = null;
+            while (gui == null || (data = gui.getOtherInput()) == null) {
+            }
+            gui.voidOtherInput();
+
+            return data;
+        }));
+
+
         serverListen.start();
     }
 
@@ -125,33 +149,40 @@ public class GameClient {
     }
 }
 
+
 //Thread to listen to messages from the server
 class ListenThread implements Runnable {
+    interface Input {
+        String get();
+    }
+
+    interface InternalOutput {
+        void pipe(String output);
+    }
+
     private DataOutputStream out;
     private DataInputStream in;
 
     private ClientGUI gui;
 
-    private Hand cards;
+    private volatile Hand cards;
 
     private Scanner input;
 
-    ListenThread(DataOutputStream o, DataInputStream i, ClientGUI g, Hand c) {
+    private Input read;
+    private InternalOutput pipe;
+    private Input otherPipe;
+
+
+    ListenThread(DataOutputStream o, DataInputStream i, ClientGUI g, Hand c, Input read, InternalOutput pipe, Input pipe2) {
         out = o;
         in = i;
         gui = g;
         cards = c;
 
-        initInput();
-    }
-
-    public void initInput() {
-        input = new Scanner(System.in);
-    }
-
-
-    public void pipeText(String output) {
-        System.out.println(output);
+        this.read = read;
+        this.pipe = pipe;
+        this.otherPipe = pipe2;
     }
 
 
@@ -160,11 +191,9 @@ class ListenThread implements Runnable {
         String color = "";
         while (!color.equals("red") && !color.equals("blue")
                 && !color.equals("green") && !color.equals("yellow")) {
-            pipeText("What color do you want?");
-            color = input.nextLine();
+            pipe.pipe("What color do you want?");
+            color = otherPipe.get();
         }
-        //DEBUG
-        System.out.println("color is: " + color);
 
         return color;
     }
@@ -172,14 +201,16 @@ class ListenThread implements Runnable {
 
     public void run() {
         //DEBUG
-        System.out.println("Listening to server for GameStart.");
-        //Listen for messages from the server
         String message = "";
         while (!message.equals("disconnect")) {
+            System.out.println("Listening to server for GameStart.");
+            //Listen for messages from the server
             try {
                 message = in.readUTF();
             } catch (IOException e) {
             }
+
+            if (message.length() == 0) continue;
             //DEBUG
             System.out.println(message);
             //Splitting the message into its parts
@@ -193,6 +224,7 @@ class ListenThread implements Runnable {
                 //DEBUG
                 System.out.println("added card");
                 cards.addCard(newCard);
+                gui.updateCards(cards);
                 //Send the new card to the gui
             } else if (messParts[0].equals("turn")) {
                 //Check if there its someone elses turn
@@ -223,8 +255,8 @@ class ListenThread implements Runnable {
                         //DEBUG
                         System.out.println("printing cards:");
                         cards.printCards();
-                        System.out.println("Enter the card you want to play:");
-                        String cardPlay = input.nextLine();
+                        pipe.pipe("Enter the card you want to play:");
+                        String cardPlay = read.get();
                         //Send to server
                         //Check for wilds
                         String[] cardCheck = cardPlay.split(" ");
@@ -234,8 +266,10 @@ class ListenThread implements Runnable {
                             cardPlay = cardCheck[0] + " " + color;
                         }
                         try {
+                            System.out.println("Want to play card " + cardPlay);
                             out.writeUTF(cardPlay);
                         } catch (IOException e) {
+                            e.printStackTrace();
                         }
                         //Checking for illegal move
                         try {
@@ -246,7 +280,7 @@ class ListenThread implements Runnable {
                             //gui.getMove();
                             cards.printCards();
                             System.out.println("Enter the card you want to play:");
-                            cardPlay = input.nextLine();
+                            cardPlay = read.get();
                             cardCheck = cardPlay.split(" ");
                             //Check for a wild card
                             if (cardCheck[1].equals("wild")) {
@@ -276,6 +310,7 @@ class ListenThread implements Runnable {
                             temp.add(new Card(cardPlayed[0], cardPlayed[1]));
                         }
                         cards.removeCards(temp);
+                        gui.updateCards(cards);
                         //DEBUG
                         System.out.println("Removed " + temp.get(0).getString());
                     } else {
@@ -285,6 +320,7 @@ class ListenThread implements Runnable {
                         //will be in [1], [2]
                         String[] cardParts = message.split(" "); // message is the drawn card
                         cards.addCard(new Card(cardParts[1], cardParts[2]));
+                        gui.updateCards(cards);
                     }
                 }
             }

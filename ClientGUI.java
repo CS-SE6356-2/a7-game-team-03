@@ -42,11 +42,16 @@ public class ClientGUI extends Application implements Runnable {
 
     private Stage window; // main stage to display on the screen
 
+    private volatile String selectedCard = null;
+    private volatile String otherInput = null;
+
     private Thread thread; // thread running
     private boolean running = false; // whether or not the application is still active
 
     private Canvas canvas; // draw canvas for the window
     private Image img;
+
+    private Label prompt;
 
     private boolean cardsChanged = true;
 
@@ -91,9 +96,42 @@ public class ClientGUI extends Application implements Runnable {
         }
     }
 
+    public String getSelectedCard() {
+        return selectedCard;
+    }
+
+    public String getOtherInput() {
+        return otherInput;
+    }
+
+    public void voidOtherInput() {
+        Platform.runLater(() -> otherInput = null);
+    }
+
+
+    public void updateCards(Hand hand) {
+        Platform.runLater(() -> {
+            cardList.clear();
+            for (Card c : hand.getActiveCards()) {
+                cardList.add(c.getString());
+            }
+        });
+    }
+
+
+    public void voidSelectedCard() {
+        Platform.runLater(() ->
+                selectedCard = null);
+    }
+
+    public void setPrompt(String labelText) {
+        Platform.runLater(() -> {
+            prompt.setText(labelText);
+        });
+    }
 
     public void start(Stage primaryStage) {
-        client = new GameClient();
+        client = new GameClient(this);
 
         primaryStage.setTitle("UNO!");
 
@@ -128,7 +166,7 @@ public class ClientGUI extends Application implements Runnable {
         grid.add(hbBtn, 1, 4);
 
         cards.setOnMouseClicked((e) -> {
-            System.out.println(cards.getSelectionModel().getSelectedItem());
+            handleItemSelection();
         });
 
         userTextField.setOnKeyPressed((e) -> {
@@ -225,6 +263,10 @@ public class ClientGUI extends Application implements Runnable {
         }
     }
 
+    private void handleItemSelection() {
+        selectedCard = cards.getSelectionModel().getSelectedItem();
+    }
+
 
     private void initGrid(GridPane grid) {    //DEBUG
         grid.setGridLinesVisible(false);
@@ -241,8 +283,29 @@ public class ClientGUI extends Application implements Runnable {
         playerLabel.setTextFill(Color.WHITE);
         grid.add(playerLabel, 0, 0);
 
-        TextField test = new TextField("Default text");
-        grid.add(test, 1, 1);
+        Button playCardBtn = new Button("Play Card");
+        grid.add(playCardBtn, 1, 1);
+
+        playCardBtn.setOnAction((e) -> {
+            handleItemSelection();
+        });
+
+
+        prompt = new Label("Prompt Text.");
+        prompt.setTextFill(Color.WHITE);
+        grid.add(prompt, 2, 1);
+
+
+        TextField enterColor = new TextField();
+        enterColor.setOnKeyPressed((e) ->
+        {
+            if (e.getCode() == KeyCode.ENTER) {
+                otherInput = enterColor.getText();
+            }
+        });
+
+        grid.add(enterColor, 2, 2);
+
 
         //Creating a button just for the leader that tells the server to start the game
         if (client.isLeader()) {
