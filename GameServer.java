@@ -144,6 +144,10 @@ public class GameServer {
             if (firstTurn) {
                 firstTurn = false;
             }
+			//Need to skip, but don't need to look at above stuff
+			if(needToSkip) {
+				
+			}
             //String to store the player's move
             String move = "";
             //Notify the player it is their turn
@@ -157,7 +161,7 @@ public class GameServer {
             }
 
             //Check if the player has a legal move
-            if (cardGame.hasLegalPlay(playOrder.getPlayer())) {
+            if (cardGame.hasLegalPlay(playOrder.getPlayer()) && !needToSkip) {
                 //DEBUG
                 System.out.println(playOrder.getPlayer().getName() + " has a move");
                 //They do, they must play a card
